@@ -3,12 +3,25 @@ import yt_dlp
 
 st.set_page_config(page_title="Universal Video Downloader", page_icon="🌍")
 
+if 'video_url' not in st.session_state:
+    st.session_state['video_url'] = ""
+
+def clear_input():
+    st.session_state['video_url'] = ""
+
 st.title("🌍 Universal Video Downloader")
 st.write("Enter a video link from almost any platform (YouTube, Facebook, Twitter, TikTok, Vimeo, etc.) to get the direct download link.")
 
 url = st.text_input("Enter Video URL here:")
+col1, col2 = st.columns([1, 5])
 
-if st.button("Get Download Link"):
+with col1:
+    get_link_btn = st.button("Get Download Link")
+
+with col2:
+    reset_btn = st.button("Reset", on_click=clear_input)
+
+if get_link_btn:
     if url:
         ydl_opts = {
             'format': 'best', 
