@@ -1,29 +1,45 @@
 import streamlit as st
 import yt_dlp
+import os
 
 st.set_page_config(page_title="YouTube Downloader", page_icon="🎥")
 
 st.title("🎥 YouTube Video Downloader")
-st.write("Enter a YouTube link below to get the direct download link.")
+st.write("Enter a YouTube link below to download the video directly.")
 
 url = st.text_input("YouTube Video URL:")
 
-if st.button("Get Download Link"):
+TEMP_FILENAME = "temp_video.mp4"
+
+if st.button("Fetch Video"):
     if url:
-        ydl_opts = {'format': 'best', 'quiet': True, 'no_warnings': True}
+        ydl_opts = {
+            'format': 'best',
+            'outtmpl': TEMP_FILENAME,
+            'quiet': True,
+            'no_warnings': True,
+        }
         
-        with st.spinner("Extracting link... Please wait."):
+        with st.spinner("Processing your video... Please wait."):
             try:
-                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                    info = ydl.extract_info(url, download=False)
-                    video_url = info.get('url', None)
-                    title = info.get('title', 'Video')
+                if os.path.exists(TEMP_FILENAME):
+                    os.remove(TEMP_FILENAME)
                     
-                    if video_url:
-                        st.success(f"Ready to download: **{title}**")
-                        st.markdown(f"[👉 Click Here to Download Video]({video_url})", unsafe_allow_html=True)
-                        st.info("Note: Right-click the link and select 'Save link as...' if it opens in the browser.")
+                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                    info = ydl.extract_info(url, download=True)
+                    title = info.get('title', 'Video')
+                
+                st.success(f"Ready: **{title}**")
+                
+                with open(TEMP_FILENAME, "rb") as file:
+                    st.download_button(
+                        label="⬇️ Download Video Now",
+                        data=file,
+                        file_name=f"{title}.mp4",
+                        mime="video/mp4"
+                    )
+                    
             except Exception as e:
-                st.error(f"Error extracting video: Is the link correct?")
+                st.error(f"Error processing video. Make sure the link is correct. Details: {e}")
     else:
         st.warning("Please enter a valid YouTube URL.")
