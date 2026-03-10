@@ -18,6 +18,7 @@ if st.button("Download Video"):
             'outtmpl': TEMP_FILENAME,
             'quiet': True,
             'no_warnings': True,
+            'cookiesfrombrowser': ('chrome',),
             'nocheckcertificate': True,
             'extractor_args': {'youtube': {'player_client': ['android', 'web']}},
             'http_headers': {
