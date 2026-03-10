@@ -56,21 +56,17 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# State management for Reset button
 if 'video_url' not in st.session_state:
     st.session_state.video_url = ""
 
 def clear_input():
     st.session_state.video_url = ""
 
-# UI Elements (HTML converted to Streamlit Markdown)
 st.markdown("<h1 style='text-align: center; color: #333;'>🌍 Universal Video Downloader</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; color: #6c757d; margin-bottom: 20px;'>Enter a video link from almost any platform (YouTube, Facebook, Twitter, TikTok, Vimeo, etc.) to get the direct download link.</p>", unsafe_allow_html=True)
 
-# Input Field
 url = st.text_input("URL", placeholder="Enter Video URL here...", key="video_url", label_visibility="collapsed")
 
-# Buttons in columns
 col1, col2 = st.columns([3, 1])
 
 with col1:
@@ -79,7 +75,6 @@ with col1:
 with col2:
     reset_btn = st.button("Reset", on_click=clear_input)
 
-# Backend Logic
 if get_link_btn:
     if url:
         ydl_opts = {
