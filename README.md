@@ -1,6 +1,6 @@
-# Simple YouTube Video Downloader
+# Simple Universal Video Downloader
 
-A lightweight, robust command-line tool to download YouTube videos in the best available quality (MP4) using Python and `yt-dlp`. 
+A lightweight, robust command-line tool to download videos in the best available quality (MP4) using Python Packages. 
 
 ## Features
 - Downloads the highest quality video and audio.
