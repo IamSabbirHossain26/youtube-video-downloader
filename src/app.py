@@ -5,15 +5,13 @@ st.set_page_config(page_title="Universal Video Downloader", page_icon="🌍", la
 
 st.markdown("""
     <style>
-        /* General Body and Container Styling */
+        /* General Container Styling - Removed forced white background */
         .block-container {
-            background-color: white;
             padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             max-width: 700px;
             margin-top: 2rem;
         }
+        
         /* Hide Streamlit Branding */
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
@@ -35,9 +33,11 @@ st.markdown("""
             padding: 10px;
             border-radius: 5px;
             font-weight: bold;
+            transition: 0.3s;
         }
         div[data-testid="column"]:nth-child(1) button:hover {
             background-color: #0b5ed7;
+            color: white;
         }
         
         /* Secondary Button (Reset) */
@@ -49,9 +49,29 @@ st.markdown("""
             padding: 10px;
             border-radius: 5px;
             font-weight: bold;
+            transition: 0.3s;
         }
         div[data-testid="column"]:nth-child(2) button:hover {
             background-color: #5c636a;
+            color: white;
+        }
+        
+        /* Fixed Download Link Button */
+        .download-btn {
+            display: block;
+            text-align: center;
+            background-color: #198754;
+            color: white !important; /* Forces text to stay white */
+            padding: 12px;
+            border-radius: 5px;
+            text-decoration: none !important; /* Removes underline */
+            font-weight: bold;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        .download-btn:hover {
+            background-color: #157347 !important; /* Darker green on hover */
+            color: white !important; 
         }
     </style>
 """, unsafe_allow_html=True)
@@ -62,8 +82,8 @@ if 'video_url' not in st.session_state:
 def clear_input():
     st.session_state.video_url = ""
 
-st.markdown("<h1 style='text-align: center; color: #333;'>🌍 Universal Video Downloader</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #6c757d; margin-bottom: 20px;'>Enter a video link from almost any platform (YouTube, Facebook, Twitter, TikTok, Vimeo, etc.) to get the direct download link.</p>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'>🌍 Universal Video Downloader</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; margin-bottom: 20px; opacity: 0.8;'>Enter a video link from almost any platform (YouTube, Facebook, Twitter, TikTok, Vimeo, etc.) to get the direct download link.</p>", unsafe_allow_html=True)
 
 url = st.text_input("URL", placeholder="Enter Video URL here...", key="video_url", label_visibility="collapsed")
 
@@ -96,9 +116,9 @@ if get_link_btn:
                     
                     if video_url:
                         st.success(f"**Ready:** {title}")
-                        # Bootstrap styled success download button
+                        
                         st.markdown(f"""
-                            <a href="{video_url}" target="_blank" style="display: block; text-align: center; background-color: #198754; color: white; padding: 12px; border-radius: 5px; text-decoration: none; font-weight: bold; margin-top: 10px;">
+                            <a href="{video_url}" target="_blank" class="download-btn">
                                 👉 Click Here to Download
                             </a>
                         """, unsafe_allow_html=True)
