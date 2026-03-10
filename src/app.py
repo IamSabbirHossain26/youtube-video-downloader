@@ -1,52 +1,57 @@
-import streamlit as st
+# app.py
+from flask import Flask, request, jsonify, send_from_directory
 import yt_dlp
+import os
 
-st.set_page_config(page_title="Universal Video Downloader", page_icon="🌍")
+app = Flask(__name__, static_folder='static')
 
-if 'video_url' not in st.session_state:
-    st.session_state['video_url'] = ""
+@app.route('/')
+def serve_frontend():
+    """Serves the main HTML file."""
+    return send_from_directory('static', 'index.html')
 
-def clear_input():
-    st.session_state['video_url'] = ""
+@app.route('/static/<path:path>')
+def serve_static(path):
+    """Serves static files like app.js."""
+    return send_from_directory('static', path)
 
-st.title("🌍 Universal Video Downloader")
-st.write("Enter a video link from almost any platform (YouTube, Facebook, Twitter, TikTok, Vimeo, etc.) to get the direct download link.")
+@app.route('/api/get-link', methods=['POST'])
+def get_download_link():
+    """API endpoint to fetch the direct video download link."""
+    data = request.json
+    url = data.get('url')
+    
+    if not url:
+        return jsonify({"success": False, "error": "URL is required"}), 400
 
-url = st.text_input("Enter Video URL here:")
-col1, col2 = st.columns([1, 5])
+    ydl_opts = {
+        'format': 'best',
+        'quiet': True,
+        'no_warnings': True,
+        'http_headers': {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+        },
+        'extractor_args': {'generic': {'impersonate': ['chrome']}}, 
+    }
 
-with col1:
-    get_link_btn = st.button("Get Download Link")
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+            video_url = info.get('url', None)
+            title = info.get('title', 'Unknown Video')
+            
+            if video_url:
+                return jsonify({
+                    "success": True, 
+                    "title": title, 
+                    "video_url": video_url
+                })
+            else:
+                return jsonify({"success": False, "error": "Could not extract direct link."}), 400
+                
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
-with col2:
-    reset_btn = st.button("Reset", on_click=clear_input)
-
-if get_link_btn:
-    if url:
-        ydl_opts = {
-            'format': 'best', 
-            'quiet': True, 
-            'no_warnings': True,
-            'http_headers': {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36'
-            }
-        }
-        
-        with st.spinner("Extracting link... Please wait."):
-            try:
-                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                    info = ydl.extract_info(url, download=False)
-                    video_url = info.get('url', None)
-                    title = info.get('title', 'Unknown Video')
-                    
-                    if video_url:
-                        st.success(f"Ready to download: **{title}**")
-                        st.markdown(f"### [👉 Click Here to Download Video]({video_url})", unsafe_allow_html=True)
-                        st.info("Note: Right-click the link and select 'Save link as...' if it plays directly in the browser.")
-                    else:
-                        st.error("Could not extract a direct video link. The platform might be using a protected stream.")
-                        
-            except Exception as e:
-                st.error(f"Error extracting video. The site might be unsupported, private, or blocking requests. Details: {e}")
-    else:
-        st.warning("Please enter a valid URL.")
+if __name__ == '__main__':
+    print("[INFO] Server running at http://127.0.0.1:5000")
+    app.run(debug=True, port=5000)
